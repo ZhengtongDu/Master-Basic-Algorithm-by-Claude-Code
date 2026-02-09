@@ -86,10 +86,12 @@ github仓库：git@github.com:ZhengtongDu/Master-Basic-Algorithm-by-Claude-Code.
 - [x] 2026-02-09: 添加 README.md
 - [x] 2026-02-09: 修复 KaTeX 数学公式渲染（参考 LEAN 项目方案）
 - [x] 2026-02-09: 调整正文字号（17px）和行高（1.8）
+- [x] 2026-02-09: 创建 MyQuestions.md 问题记录文件（参考 LeanCC 格式）
+- [x] 2026-02-09: 编写 Chapter 00 第 0.6 节：渐近符号（定义、性质、运算规则、8 道测试题）
 
 ## Current Task
 
-无
+（无）
 
 ## Todolist
 - [ ] 编写第一章：基础与分治
