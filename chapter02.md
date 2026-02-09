@@ -4,7 +4,10 @@
 
 ---
 
-期中考难度预测Easy: 判定 Race condition，计算简单分治的 Work/Span (如 Parallel Sum)。Medium: 树形算法 (Tree traversal)，矩阵向量乘法 (Matrix-Vector Mult)。Hard: 需要嵌套并行的问题 (类似 Majority Element 或 Merge Sort)，要求推导出 $O(\log^2 n)$ 的 Span。
+> **期中考难度预测**
+> - **Easy**：判定 Race Condition，计算简单分治的 Work/Span（如 Parallel Sum）
+> - **Medium**：树形算法（Tree Traversal），矩阵向量乘法（Matrix-Vector Mult）
+> - **Hard**：需要嵌套并行的问题（类似 Majority Element 或 Merge Sort），要求推导出 $O(\log^2 n)$ 的 Span
 
 ## 2.1 性能分析指标与 Fork-Join 编程原语
 
@@ -297,20 +300,24 @@ def PSUM(A, L, R):
     return S1 + S2                  # 合并步骤
 ```
 
-补充： BPSUM
+#### 带阈值的并行求和（BPSUM）
 
-核心逻辑: 增加了 Base Case 的阈值判断，防止产生过多线程。
+上面的 `PSUM` 会一直递归到单个元素，产生大量微小任务。实际中，当子问题足够小时应切换为串行执行，避免线程开销超过计算本身。`BPSUM` 通过阈值判断实现这一优化：
 
-BPSUM(A, l, r)
-    // 阈值判断：如果任务量小于平均分配量，直接转串行
+```python
+def BPSUM(A, l, r):
+    # 阈值判断：如果任务量小于平均分配量，直接转串行
     if (r - l + 1) <= ceil(n / P):
-        return SerialSum(A, l, r) 
-        
-    m = floor((l + r) / 2)
+        return SerialSum(A, l, r)
+
+    m = (l + r) // 2
     spawn s1 = BPSUM(A, l, m)
     s2 = BPSUM(A, m + 1, r)
     sync
     return s1 + s2
+```
+
+**核心思想**：当子数组长度 $\le \lceil n/P \rceil$ 时，说明该子问题已经小到一个处理器就能高效处理，无需继续分叉。这不改变渐近复杂度，但在实践中能显著减少线程管理开销。
 
 ### 2.4.1 Work 分析（$T_1$）
 
@@ -577,57 +584,62 @@ $$
 
 ## 2.6 算法 III：并行归并排序
 
-补充：假并行
+在介绍真正的并行归并排序之前，我们先看一个常见的"假并行"尝试，理解为什么朴素的并行化是不够的。
 
-核心逻辑: 递归是并行的，但 Merge 是串行的。
+#### 假并行：朴素并行归并排序
 
-Span: $O(n)$ (瓶颈在 Merge)
+递归是并行的，但合并（Merge）仍然是串行的。
 
-MergeSort(S, l, r)
+```python
+def MergeSort(S, l, r):
     if l < r:
-        m = floor((l + r) / 2)
+        m = (l + r) // 2
         spawn MergeSort(S, l, m)
         MergeSort(S, m + 1, r)
         sync
-        
-        // 瓶颈在这里：串行合并
-        Merge(S, l, m, r)
 
-True Parallel Merge Sort (真并行)
+        Merge(S, l, m, r)    # 瓶颈：串行合并，Span = O(n)
+```
 
-核心逻辑: 使用 Binary Search 进行并行合并。
+由于串行 `Merge` 的 Span 为 $O(n)$，整体 Span 递推为 $T_\infty(n) = T_\infty(n/2) + O(n) = O(n)$，几乎无法获得并行加速。
 
-Span: $O(\log^2 n)$
+#### 真并行：基于二分搜索的并行归并排序
 
+**核心思想**：用二分搜索（Binary Search）确定每个元素在合并结果中的位置，从而实现并行合并。
 
-PMergeSort(S, n)
-    if n == 1 return S
-    m = n / 2
+```python
+def PMergeSort(S, n):
+    if n == 1:
+        return S
+    m = n // 2
     spawn L = PMergeSort(S[1..m])
     R = PMergeSort(S[m+1..n])
     sync
-    
-    // 调用并行合并
-    return PMerge(L, R)
+    return PMerge(L, R)         # 调用并行合并
 
-PMerge(A, B) // 合并两个有序数组 A 和 B
-    n = length(A)
-    m = length(B)
+def PMerge(A, B):
+    """并行合并两个有序数组 A 和 B"""
+    n, m = len(A), len(B)
     C = new array of size n + m
-    
-    // 对 A 中每个元素，去 B 里找位置 (Rank)
+
+    # 对 A 中每个元素，用二分搜索在 B 中找到其排名（Rank）
     parallel for i = 1 to n:
-        rank = BinarySearch(B, A[i]) 
+        rank = BinarySearch(B, A[i])
         C[i + rank] = A[i]
-        
-    // 对 B 中每个元素，去 A 里找位置 (Rank)
+
+    # 对 B 中每个元素，用二分搜索在 A 中找到其排名
     parallel for j = 1 to m:
         rank = BinarySearch(A, B[j])
         C[j + rank] = B[j]
-        
+
     return C
+```
 
+- **PMerge 的 Work**：$O(n \log n)$（$n$ 次二分搜索，每次 $O(\log n)$）
+- **PMerge 的 Span**：$O(\log n)$（`parallel for` 分发 $O(\log n)$ + 每次迭代中二分搜索 $O(\log n)$，取 max 后仍为 $O(\log n)$）
+- **PMergeSort 的 Span**：$T_\infty(n) = T_\infty(n/2) + O(\log n) = O(\log^2 n)$
 
+下面我们对这两种方案进行详细分析。
 
 **核心逻辑**：$T(n) = T(\text{sort\_left}) + T(\text{sort\_right}) + T(\text{merge})$。
 
@@ -709,26 +721,33 @@ $$
    - 否则，在**整个**数组 $A$ 中分别统计 $m_L$ 和 $m_R$ 的出现次数
    - 返回出现次数 $> n/2$ 的那个（若存在）
 
-补充
-PFIND_MAJORITY(A, l, r)
-    if l == r: return A[l]
-    m = floor((l + r) / 2)
-    
-    // 1. 并行递归找左右候选众数
+**伪代码**：
+
+```python
+def PFIND_MAJORITY(A, l, r):
+    if l == r:
+        return A[l]
+    m = (l + r) // 2
+
+    # 1. 并行递归找左右候选众数
     spawn a1 = PFIND_MAJORITY(A, l, m)
     a2 = PFIND_MAJORITY(A, m + 1, r)
     sync
-    
-    // 2. 并行统计 a1 和 a2 在 *当前整个范围* 内的出现次数
-    // PCOUNT 是一个类似 Parallel Sum 的并行归约函数
-    c1 = PCOUNT(A, l, r, a1) 
+
+    # 2. 并行统计 a1 和 a2 在当前整个范围内的出现次数
+    # PCOUNT 是一个类似 Parallel Sum 的并行归约函数
+    c1 = PCOUNT(A, l, r, a1)
     c2 = PCOUNT(A, l, r, a2)
-    
+
     if c1 > (r - l + 1) / 2: return a1
     if c2 > (r - l + 1) / 2: return a2
     return None
+```
 
-分治法查找众数 + 并行计数。Work (总工作量 $T_1$): $O(n \log n)$解释: 递归式 $W(n) = 2W(n/2) + O(n)$（因为 Count 需要 $O(n)$ work）。解得 $O(n \log n)$ 。Span (关键路径 $T_\infty$): $O(\log^2 n)$解释:Count 步骤: 使用并行归约统计次数，Span 是 $O(\log n)$ 。整体递归: $T_\infty(n) = T_\infty(n/2) + O(\log n)$。解: $O(\log^2 n)$ 。    
+**复杂度分析**：
+
+- **Work**（$T_1$）：$O(n \log n)$。递归式 $W(n) = 2W(n/2) + O(n)$，其中 $O(n)$ 来自 `PCOUNT` 需要扫描整个子数组。由主定理解得 $O(n \log n)$。
+- **Span**（$T_\infty$）：$O(\log^2 n)$。`PCOUNT` 使用并行归约统计次数，Span 为 $O(\log n)$。整体递推 $T_\infty(n) = T_\infty(n/2) + O(\log n)$，解得 $O(\log^2 n)$。
 
 **"统计"步骤的 Span 分析**：
 
