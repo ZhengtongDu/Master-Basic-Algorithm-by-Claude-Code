@@ -88,6 +88,7 @@ github仓库：git@github.com:ZhengtongDu/Master-Basic-Algorithm-by-Claude-Code.
 - [x] 2026-02-09: 调整正文字号（17px）和行高（1.8）
 - [x] 2026-02-09: 创建 MyQuestions.md 问题记录文件（参考 LeanCC 格式）
 - [x] 2026-02-09: 编写 Chapter 00 第 0.6 节：渐近符号（定义、性质、运算规则、8 道测试题）
+- [x] 2026-02-09: 为 Chapter 02 添加 2.0 预备知识节（DAG、计算 DAG、fork-join 模型、记号汇总）
 
 ## Current Task
 
