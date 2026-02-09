@@ -28,6 +28,36 @@ github仓库：git@github.com:ZhengtongDu/Master-Basic-Algorithm-by-Claude-Code.
   - [DPV] Dasgupta, Papadimitriou, Vazirani, *Algorithms* (2006)
   - [Er] Erickson, *Algorithms* (2019) - https://jeffe.cs.illinois.edu/teaching/algorithms/
 
+## 图表绘制规范
+
+本项目使用 **Mermaid** 绘制所有结构化图表（已在 index.html 中集成 docsify-mermaid 插件）。
+
+### 使用方式
+
+在 Markdown 中使用 ` ```mermaid ` 代码块即可渲染图表：
+
+- **树结构**：使用 `graph TD`（自顶向下）
+- **图结构**：使用 `graph LR`（左到右）或 `graph TD`
+- **流程图**：使用 `flowchart`
+- **状态图**：使用 `stateDiagram-v2`
+
+### 适用场景
+
+| 场景 | Mermaid 语法 | 示例 |
+|------|-------------|------|
+| 递归树 / 分治树 | `graph TD` | 归并排序递归树、递推关系展开 |
+| 有向图 / 无向图 | `graph LR` / `graph TD` | DFS/BFS 遍历、最短路径 |
+| 流网络 | `graph LR` + 边标注 | 最大流、残余图 |
+| 状态转移 | `stateDiagram-v2` | DP 状态转移 |
+| 算法流程 | `flowchart TD` | 算法步骤、判断分支 |
+
+### 注意事项
+
+- 所有树、图、流程图**必须使用 Mermaid**，不要使用 ASCII art 或外部图片
+- 节点标签使用中文
+- 边上可标注权重、容量等信息，如 `A -->|w=5| B`
+- 复杂图表可拆分为多个小图分步展示
+
 ## 章节对应关系
 
 | 章节 | 课程讲义 | 主题 |
