@@ -10,13 +10,15 @@ github仓库：git@github.com:ZhengtongDu/Master-Basic-Algorithm-by-Claude-Code.
 
 ## 项目结构
 
-- `index.html` - docsify 入口文件
+- `index.html` - docsify 入口文件（含 KaTeX、Mermaid、搜索等插件配置）
 - `index.md` - 教程目录和章节索引
-- `chapter00.md` - How to use this tutorial
+- `README.md` - GitHub 项目说明
+- `chapter00.md` - How to use this tutorial（含主定理速查）
 - `chapter01.md` ~ `chapter08.md` - 各章节内容（每章对应一个主题）
 - `appendix-a.md` ~ `appendix-c.md` - 附录内容
 - `_sidebar.md` - docsify 侧边栏配置
 - `.nojekyll` - GitHub Pages 配置
+- `.github/workflows/deploy.yml` - GitHub Actions 自动部署
 
 ## 写作规范
 
@@ -76,6 +78,14 @@ github仓库：git@github.com:ZhengtongDu/Master-Basic-Algorithm-by-Claude-Code.
 - [x] 2026-02-09: 创建项目结构和 docsify 配置
 - [x] 2026-02-09: 生成 index.md 教程目录大纲
 - [x] 2026-02-09: 创建 8 个章节和 3 个附录的占位文件
+- [x] 2026-02-09: 集成 Mermaid 图表绘制支持
+- [x] 2026-02-09: 编写 Chapter 00（含主定理完整证明与速查表）
+- [x] 2026-02-09: 编写 Chapter 02：并行算法（Work/Span 分析、并行求和、矩阵乘法、归并排序）
+- [x] 2026-02-09: 编写 Chapter 03：动态规划（Fibonacci、LCS、MCM、背包、树形 DP）
+- [x] 2026-02-09: 添加 GitHub Actions 自动部署 workflow
+- [x] 2026-02-09: 添加 README.md
+- [x] 2026-02-09: 修复 KaTeX 数学公式渲染（参考 LEAN 项目方案）
+- [x] 2026-02-09: 调整正文字号（17px）和行高（1.8）
 
 ## Current Task
 
@@ -83,5 +93,8 @@ github仓库：git@github.com:ZhengtongDu/Master-Basic-Algorithm-by-Claude-Code.
 
 ## Todolist
 - [ ] 编写第一章：基础与分治
-- [ ] 编写第二章：并行算法
-- [ ] ...（后续章节）
+- [ ] 编写第四章：图算法
+- [ ] 编写第五章：贪心算法
+- [ ] 编写第六章：网络流
+- [ ] 编写第七章：计算复杂性
+- [ ] 编写第八章：大数据算法
