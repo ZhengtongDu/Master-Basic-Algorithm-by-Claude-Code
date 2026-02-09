@@ -14,5 +14,6 @@ Read the CLAUDE.md file and check the current task status:
 6. After completing the task, update CLAUDE.md:
    - Move the completed task to the "Done Tasks" section with today's date
    - Update "Current Task" with the next pending item from the Todolist
+7. Commit changes to git with a meaningful message summarizing the work done and ask if need git-push
 
 Start by reading CLAUDE.md now and continue working on the project.
