@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>基础算法从入门到精通</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="基于 Duke CS 330 课程的算法设计与分析中文教程">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <style>
+    :root {
+      --theme-color: #3F51B5;
+    }
+    .markdown-section pre > code {
+      font-family: 'Fira Code', 'Source Code Pro', monospace;
+    }
+    .sidebar .sidebar-nav ul li a {
+      font-size: 14px;
+    }
+    .app-name-link {
+      font-size: 22px !important;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">加载中...</div>
+  <script>
+    window.$docsify = {
+      name: '基础算法从入门到精通',
+      repo: 'https://github.com/ZhengtongDu/Master-Basic-Algorithm-by-Claude-Code',
+      loadSidebar: true,
+      subMaxLevel: 3,
+      search: {
+        placeholder: '搜索',
+        noData: '没有找到结果',
+        depth: 3
+      },
+      auto2top: true,
+      coverpage: false,
+      latex: {
+        inlineMath   : [['$', '$']],
+        displayMath  : [['$$', '$$']]
+      }
+    }
+  </script>
+  <!-- Docsify -->
+  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+  <!-- 搜索插件 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
+  <!-- 代码高亮 -->
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-python.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-java.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-c.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-cpp.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-pseudocode.min.js"></script>
+  <!-- KaTeX 数学公式 -->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css" />
+  <script src="//cdn.jsdelivr.net/npm/docsify-katex@latest/dist/docsify-katex.js"></script>
+  <!-- 复制代码 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
+</body>
+</html>
