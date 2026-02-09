@@ -4,6 +4,8 @@
 
 ---
 
+期中考难度预测Easy: 判定 Race condition，计算简单分治的 Work/Span (如 Parallel Sum)。Medium: 树形算法 (Tree traversal)，矩阵向量乘法 (Matrix-Vector Mult)。Hard: 需要嵌套并行的问题 (类似 Majority Element 或 Merge Sort)，要求推导出 $O(\log^2 n)$ 的 Span。
+
 ## 2.1 性能分析指标与 Fork-Join 编程原语
 
 ### 2.1.1 从串行到并行：为什么需要新的分析框架
@@ -129,7 +131,70 @@ def solve(problem):
 
 在计算 DAG 中，`spawn` 产生一个分叉点（一个节点有两条出边），`sync` 产生一个汇合点（一个节点有两条入边）。
 
-> **关于 `parallel for` 的 Span**：`parallel for i in range(n)` 并非简单地同时启动 $n$ 个任务。实际上它通过递归二分来分发任务（类似归并排序的分治结构），因此分发过程本身的 Span 为 $O(\log n)$。整个 `parallel for` 的 Span = $O(\log n) + \max_i(\text{第 } i \text{ 次迭代的 Span})$。
+#### `parallel for` 的 Span 为什么是 $O(\log n)$？
+
+`parallel for i in range(n)` **并非**简单地同时启动 $n$ 个任务。如果真的串行地逐个 `spawn` 出 $n$ 个任务，光是"发任务"这个过程本身就需要 $O(n)$ 的 Span——这就失去了并行的意义。
+
+实际上，`parallel for` 通过**递归二分**来分发任务。以 `parallel for i in range(8)` 为例，其内部实现等价于：
+
+```python
+def parallel_for(A, lo, hi, body):
+    if lo == hi:
+        body(A, lo)              # 基本情况：执行单次迭代
+        return
+    mid = (lo + hi) // 2
+    spawn parallel_for(A, lo, mid, body)    # 左半部分
+    parallel_for(A, mid + 1, hi, body)      # 右半部分
+    sync
+```
+
+这构成了一棵**二叉分发树**：
+
+```mermaid
+graph TD
+    R["分发 [0..7]"] --> L1["分发 [0..3]"]
+    R --> R1["分发 [4..7]"]
+    L1 --> L2["分发 [0..1]"]
+    L1 --> R2["分发 [2..3]"]
+    R1 --> L3["分发 [4..5]"]
+    R1 --> R3["分发 [6..7]"]
+    L2 --> A0["执行 i=0"]
+    L2 --> A1["执行 i=1"]
+    R2 --> A2["执行 i=2"]
+    R2 --> A3["执行 i=3"]
+    L3 --> A4["执行 i=4"]
+    L3 --> A5["执行 i=5"]
+    R3 --> A6["执行 i=6"]
+    R3 --> A7["执行 i=7"]
+    style R fill:#e3f2fd
+    style L1 fill:#e3f2fd
+    style R1 fill:#e3f2fd
+    style L2 fill:#e3f2fd
+    style R2 fill:#e3f2fd
+    style L3 fill:#e3f2fd
+    style R3 fill:#e3f2fd
+    style A0 fill:#c8e6c9
+    style A1 fill:#c8e6c9
+    style A2 fill:#c8e6c9
+    style A3 fill:#c8e6c9
+    style A4 fill:#c8e6c9
+    style A5 fill:#c8e6c9
+    style A6 fill:#c8e6c9
+    style A7 fill:#c8e6c9
+```
+
+> **图示说明**：蓝色节点是分发操作（每个 $O(1)$），绿色节点是实际的循环体执行。树高为 $\log_2 8 = 3$，因此分发过程的 Span 为 $O(\log n)$。所有绿色节点在无限处理器下**同时**执行。
+
+**总结**：`parallel for` 对 $n$ 次迭代的 Span 公式为：
+
+$$
+T_\infty(\texttt{parallel for}) = O(\log n) + \max_{i}(\text{第 } i \text{ 次迭代的 Span})
+$$
+
+- 第一项 $O(\log n)$：递归二分分发树的高度
+- 第二项：所有迭代中最慢那个的 Span（因为它们并行执行，取 max）
+
+**特别地**：如果每次迭代的 Span 为 $O(1)$（如简单赋值 `C[i] = A[i] + B[i]`），则整个 `parallel for` 的 Span 为 $O(\log n)$。
 
 ---
 
@@ -231,6 +296,21 @@ def PSUM(A, L, R):
     sync                            # 等待 S1 完成
     return S1 + S2                  # 合并步骤
 ```
+
+补充： BPSUM
+
+核心逻辑: 增加了 Base Case 的阈值判断，防止产生过多线程。
+
+BPSUM(A, l, r)
+    // 阈值判断：如果任务量小于平均分配量，直接转串行
+    if (r - l + 1) <= ceil(n / P):
+        return SerialSum(A, l, r) 
+        
+    m = floor((l + r) / 2)
+    spawn s1 = BPSUM(A, l, m)
+    s2 = BPSUM(A, m + 1, r)
+    sync
+    return s1 + s2
 
 ### 2.4.1 Work 分析（$T_1$）
 
@@ -364,7 +444,43 @@ $$
 
 共需 8 次子矩阵乘法和 4 次子矩阵加法。
 
-<!-- CH02_PART5_PLACEHOLDER -->
+**伪代码**：
+
+```python
+def PMATMUL(A, B, n):
+    """并行分治矩阵乘法：计算 C = A × B，A, B 为 n×n 矩阵"""
+    if n == 1:
+        return A[0][0] * B[0][0]
+
+    # 将 A, B 分为 4 个 n/2 × n/2 子矩阵
+    A11, A12, A21, A22 = split(A)
+    B11, B12, B21, B22 = split(B)
+
+    # 8 次子矩阵乘法，全部并行执行
+    spawn D1 = PMATMUL(A11, B11, n/2)
+    spawn D2 = PMATMUL(A12, B21, n/2)
+    spawn D3 = PMATMUL(A11, B12, n/2)
+    spawn D4 = PMATMUL(A12, B22, n/2)
+    spawn D5 = PMATMUL(A21, B11, n/2)
+    spawn D6 = PMATMUL(A22, B21, n/2)
+    spawn D7 = PMATMUL(A21, B12, n/2)
+    D8 = PMATMUL(A22, B22, n/2)
+    sync  # 等待所有 spawn 完成
+
+    # 4 次子矩阵加法，用 parallel for 并行执行
+    parallel for i, j in range(n/2) × range(n/2):
+        C11[i][j] = D1[i][j] + D2[i][j]
+        C12[i][j] = D3[i][j] + D4[i][j]
+        C21[i][j] = D5[i][j] + D6[i][j]
+        C22[i][j] = D7[i][j] + D8[i][j]
+
+    return combine(C11, C12, C21, C22)
+```
+
+> **代码要点**：
+> - 8 次递归乘法通过 `spawn` 并行执行（7 个 spawn + 1 个主线程直接执行）
+> - 矩阵加法通过 `parallel for` 对所有 $(n/2)^2$ 个元素并行执行
+> - `sync` 确保所有递归乘法完成后才开始加法
 
 ### 2.5.1 Work 分析（$T_1$）
 
@@ -387,13 +503,41 @@ $$
 
 这是考试中最容易出错的地方。
 
-**递推结构分析**：
+**递推结构分析**（对照上面的伪代码逐步分析）：
 
-1. **递归乘法**：8 次乘法并发执行（`spawn`）。Span 取 $\max$，即 $T_\infty(n/2)$。
-2. **矩阵加法**：$O(n^2)$ 个元素的加法**不能**视为 $O(1)$ Span。
-   - 即便对每个元素并行相加（$C[i][j] = D[i][j] + E[i][j]$），生成这些并行任务本身需要构建一个递归分发树。
-   - 对 $n^2$ 个元素做并行归约，其 Span 为 $O(\log(n^2)) = O(\log n)$。
-   - 根据课程约定：生成 parallel loop 的 Span 是 $O(\log n)$。
+**第一步：8 次递归乘法的 Span**
+
+8 次 `PMATMUL` 调用通过 `spawn` 并发执行。在无限处理器下，它们同时运行，Span 取最慢的那个（即 $\max$）。由于 8 次调用的规模都是 $n/2$，所以：
+
+$$
+T_\infty^{\text{乘法}} = \max(T_\infty(n/2), \ldots, T_\infty(n/2)) = T_\infty(n/2)
+$$
+
+**第二步：矩阵加法的 Span — 为什么不是 $O(1)$？**
+
+加法步骤用 `parallel for` 对 $(n/2)^2$ 个元素并行执行 `C[i][j] = D[i][j] + E[i][j]`。
+
+**常见错误**：认为"每个加法 $O(1)$，全部并行，所以 Span = $O(1)$"。
+
+**正确分析**：回顾 2.1.6 节的结论，`parallel for` 通过递归二分来分发任务。对 $(n/2)^2$ 个元素的 `parallel for`，其分发树高度为：
+
+$$
+\log_2\!\left(\frac{n}{2}\right)^2 = 2\log_2\!\frac{n}{2} = 2(\log_2 n - 1) = O(\log n)
+$$
+
+每次迭代的循环体是简单赋值（$O(1)$ Span），因此：
+
+$$
+T_\infty^{\text{加法}} = O(\log n) + O(1) = O(\log n)
+$$
+
+**第三步：合并**
+
+乘法和加法是串行的（先乘后加），所以总 Span 相加：
+
+$$
+T_\infty(n) = T_\infty^{\text{乘法}} + T_\infty^{\text{加法}} = T_\infty(n/2) + O(\log n)
+$$
 
 **正确的递推关系**：
 
@@ -432,6 +576,58 @@ $$
 ---
 
 ## 2.6 算法 III：并行归并排序
+
+补充：假并行
+
+核心逻辑: 递归是并行的，但 Merge 是串行的。
+
+Span: $O(n)$ (瓶颈在 Merge)
+
+MergeSort(S, l, r)
+    if l < r:
+        m = floor((l + r) / 2)
+        spawn MergeSort(S, l, m)
+        MergeSort(S, m + 1, r)
+        sync
+        
+        // 瓶颈在这里：串行合并
+        Merge(S, l, m, r)
+
+True Parallel Merge Sort (真并行)
+
+核心逻辑: 使用 Binary Search 进行并行合并。
+
+Span: $O(\log^2 n)$
+
+
+PMergeSort(S, n)
+    if n == 1 return S
+    m = n / 2
+    spawn L = PMergeSort(S[1..m])
+    R = PMergeSort(S[m+1..n])
+    sync
+    
+    // 调用并行合并
+    return PMerge(L, R)
+
+PMerge(A, B) // 合并两个有序数组 A 和 B
+    n = length(A)
+    m = length(B)
+    C = new array of size n + m
+    
+    // 对 A 中每个元素，去 B 里找位置 (Rank)
+    parallel for i = 1 to n:
+        rank = BinarySearch(B, A[i]) 
+        C[i + rank] = A[i]
+        
+    // 对 B 中每个元素，去 A 里找位置 (Rank)
+    parallel for j = 1 to m:
+        rank = BinarySearch(A, B[j])
+        C[j + rank] = B[j]
+        
+    return C
+
+
 
 **核心逻辑**：$T(n) = T(\text{sort\_left}) + T(\text{sort\_right}) + T(\text{merge})$。
 
@@ -513,6 +709,27 @@ $$
    - 否则，在**整个**数组 $A$ 中分别统计 $m_L$ 和 $m_R$ 的出现次数
    - 返回出现次数 $> n/2$ 的那个（若存在）
 
+补充
+PFIND_MAJORITY(A, l, r)
+    if l == r: return A[l]
+    m = floor((l + r) / 2)
+    
+    // 1. 并行递归找左右候选众数
+    spawn a1 = PFIND_MAJORITY(A, l, m)
+    a2 = PFIND_MAJORITY(A, m + 1, r)
+    sync
+    
+    // 2. 并行统计 a1 和 a2 在 *当前整个范围* 内的出现次数
+    // PCOUNT 是一个类似 Parallel Sum 的并行归约函数
+    c1 = PCOUNT(A, l, r, a1) 
+    c2 = PCOUNT(A, l, r, a2)
+    
+    if c1 > (r - l + 1) / 2: return a1
+    if c2 > (r - l + 1) / 2: return a2
+    return None
+
+分治法查找众数 + 并行计数。Work (总工作量 $T_1$): $O(n \log n)$解释: 递归式 $W(n) = 2W(n/2) + O(n)$（因为 Count 需要 $O(n)$ work）。解得 $O(n \log n)$ 。Span (关键路径 $T_\infty$): $O(\log^2 n)$解释:Count 步骤: 使用并行归约统计次数，Span 是 $O(\log n)$ 。整体递归: $T_\infty(n) = T_\infty(n/2) + O(\log n)$。解: $O(\log^2 n)$ 。    
+
 **"统计"步骤的 Span 分析**：
 
 如何并行统计 $x$ 在 $A$ 中的出现次数？
@@ -547,7 +764,7 @@ def CheckPerfect(node):
     if node is None:
         return (True, 0, 0)
 
-    (L_perf, L_h, L_max) = spawn CheckPerfect(node.left)
+    spawn (L_perf, L_h, L_max) = CheckPerfect(node.left)
     (R_perf, R_h, R_max) = CheckPerfect(node.right)
     sync
 
