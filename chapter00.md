@@ -1,92 +1,213 @@
 # Chapter 0: 如何使用本教程
 
-> 本章介绍本教程的设计理念、内容结构，以及如何借助 Claude Code 获得高效的交互式学习体验。
+> 本章介绍如何借助 Claude Code 获得高效的交互式学习体验。
 
 ## 0.1 教程简介
 
-本教程基于 Duke University CS 330: Design & Analysis of Algorithms (Spring 2026) 课程内容编写，旨在为**一对一辅导场景**提供系统化的算法学习材料。
-
-与传统教材不同，本教程有以下特点：
-
-- **交互式学习**：每个概念都配有可运行的 Python 代码示例，鼓励读者动手实验
-- **渐进式讲解**：从直觉出发，先给出 toy case，再推广到一般情形
-- **可视化优先**：使用 Mermaid 图表展示树、图、状态转移等结构，让抽象概念具象化
-- **证明与直觉并重**：既给出严格的数学证明，也提供"为什么这样做"的直觉解释
-
-**目标读者**：具有基本编程能力（熟悉至少一门编程语言）和数据结构基础知识（数组、链表、栈、队列、树）的本科生或研究生。
+本教程基于 Duke University CS 330: Design & Analysis of Algorithms 课程内容编写，旨在为一对一辅导场景提供系统化的算法学习材料。
 
 ## 0.2 如何借助 Claude Code 学习
 
-本教程设计为与 [Claude Code](https://claude.ai/code)（Anthropic 的 CLI 工具）配合使用。以下是推荐的学习工作流：
-
-### 基本用法
-
-1. **克隆本仓库**：
-```bash
-git clone git@github.com:ZhengtongDu/Master-Basic-Algorithm-by-Claude-Code.git
-cd Master-Basic-Algorithm-by-Claude-Code
-```
-
-2. **启动 Claude Code**，在仓库目录下运行 `claude`，Claude 会自动读取 `CLAUDE.md` 了解项目上下文。
-
-3. **按章节学习**：告诉 Claude 你想学习哪一章，例如：
-
-```
-请带我学习第三章动态规划，从斐波那契数列开始
-```
-
-### 推荐的交互方式
-
-| 你想做什么 | 怎么问 Claude |
-|-----------|--------------|
-| 理解一个概念 | "用一个简单的例子解释 Dijkstra 算法" |
-| 看代码实现 | "给我写一个归并排序的 Python 实现，加上详细注释" |
-| 理解证明 | "主定理的证明中，为什么要分三种情况？" |
-| 做练习 | "给我出一道关于动态规划的练习题，难度中等" |
-| 对比概念 | "DFS 和 BFS 在什么场景下各有优势？" |
-| 可视化 | "画一个 Mermaid 图展示 Prim 算法的执行过程" |
-
-### 使用 /probe 命令
-
-`/probe` 是一个自定义命令，用于深入探究某个知识点。当你对某个概念感到困惑时，可以使用：
-
-```
-/probe 为什么贪心算法不能解决所有优化问题？
-```
-
-Claude 会从多个角度分析这个问题，给出反例、直觉解释和严格论证。
+（待编写）
 
 ## 0.3 教程结构说明
 
-本教程共分为 **8 章**，每章对应一个核心主题，覆盖课程 L01-L24 的全部内容：
+本教程共分为 8 章，覆盖以下核心主题：
 
-| 章节 | 主题 | 核心内容 |
-|------|------|---------|
-| [Chapter 1](chapter01.md) | **基础与分治** | 渐近分析、归并排序、快速排序、主定理 |
-| [Chapter 2](chapter02.md) | **并行算法** | 工作量-深度模型、并行前缀和、Brent 定理 |
-| [Chapter 3](chapter03.md) | **动态规划** | 记忆化、编辑距离、背包、矩阵链乘法、区间 DP |
-| [Chapter 4](chapter04.md) | **图算法** | DFS、BFS、拓扑排序、Dijkstra、Bellman-Ford |
-| [Chapter 5](chapter05.md) | **贪心算法** | MST、Kruskal、Prim、哈夫曼编码、调度 |
-| [Chapter 6](chapter06.md) | **网络流** | 最大流最小割、Ford-Fulkerson、二部图匹配 |
-| [Chapter 7](chapter07.md) | **计算复杂性** | P vs NP、归约、NP 完全、近似算法 |
-| [Chapter 8](chapter08.md) | **大数据算法** | 聚类、K-means、哈希、Sketch、流算法 |
+1. **基础与分治**（Ch1）：算法分析基础、渐近记号、归并排序、快速排序
+2. **并行算法**（Ch2）：并行计算模型、Work/Span 分析、算法设计
+3. **动态规划**（Ch3）：记忆化、序列比对、矩阵链乘法、树形 DP
+4. **图算法**（Ch4）：DFS、BFS、拓扑排序、最短路径
+5. **贪心算法**（Ch5）：最小生成树、哈夫曼编码、调度
+6. **网络流**（Ch6）：最大流最小割、Ford-Fulkerson、二部图匹配
+7. **计算复杂性**（Ch7）：P vs NP、归约、近似算法
+8. **大数据算法**（Ch8）：聚类、哈希、草图、流算法
 
-此外还有三个附录：[数学基础](appendix-a.md)、[数据结构回顾](appendix-b.md)、[参考资料](appendix-c.md)。
+## 0.4 参考资料
 
-**建议学习顺序**：按章节顺序学习。Chapter 1 是后续所有章节的基础；Chapter 3（动态规划）和 Chapter 4（图算法）是重中之重，建议花最多时间。
+- [DPV] Dasgupta, Papadimitriou, Vazirani, *Algorithms* (2006)
+- [Er] Erickson, *Algorithms* (2019)
 
-## 0.4 排版约定
+## 0.5 主定理（Master Theorem）速查
 
-本教程使用以下排版约定：
+主定理是分析分治算法复杂度的核心工具，贯穿本教程多个章节。在此给出完整陈述、证明思路与应用示例，供随时查阅。
 
-- **定义**以加粗文字引出
-- 数学公式使用 $\LaTeX$ 排版，如 $T(n) = 2T(n/2) + O(n)$
-- 代码示例使用 Python，偶尔使用伪代码
-- 树和图结构使用 Mermaid 图表展示
-- 每节末尾的"练习题"分为三个难度：基础、进阶、挑战
+### 0.5.1 定理陈述
 
-## 0.5 参考资料
+对于形如
 
-- **[DPV]** Dasgupta, Papadimitriou, Vazirani, *Algorithms* (2006)
-- **[Er]** Erickson, *Algorithms* (2019) — [在线免费阅读](https://jeffe.cs.illinois.edu/teaching/algorithms/)
-- **[CLRS]** Cormen, Leiserson, Rivest, Stein, *Introduction to Algorithms* (4th ed.)
+$$
+T(n) = a \cdot T\!\left(\frac{n}{b}\right) + O(n^d)
+$$
+
+的递推关系，其中 $a \ge 1$，$b > 1$，$d \ge 0$ 为常数，有：
+
+$$
+T(n) = \begin{cases}
+O(n^d) & \text{if } d > \log_b a \quad \text{（Case 1：合并代价主导）} \\[6pt]
+O(n^d \log n) & \text{if } d = \log_b a \quad \text{（Case 2：各层均衡）} \\[6pt]
+O(n^{\log_b a}) & \text{if } d < \log_b a \quad \text{（Case 3：叶子代价主导）}
+\end{cases}
+$$
+
+**直觉理解**：比较"每层合并代价的增长率 $n^d$"与"子问题数量的增长率 $n^{\log_b a}$"，谁增长更快谁就主导总复杂度；若两者持平，则额外乘一个 $\log n$。
+
+### 0.5.2 证明（递归树方法）
+
+将递推关系展开为一棵递归树来分析。
+
+**递归树结构**：
+
+```mermaid
+graph TD
+    A["Level 0: 1 个问题<br/>代价 = c·n^d"] --> B1["Level 1: a 个问题<br/>每个大小 n/b"]
+    A --> B2["..."]
+    A --> Ba["共 a 个子节点"]
+    B1 --> C1["Level 2: a² 个问题<br/>每个大小 n/b²"]
+    B1 --> C2["..."]
+    style A fill:#e1f5fe
+    style B1 fill:#f3e5f5
+    style C1 fill:#fff3e0
+```
+
+<!-- PROOF_PART2_PLACEHOLDER -->
+
+**逐层分析**：
+
+- **第 $k$ 层**：共有 $a^k$ 个子问题，每个子问题规模为 $n/b^k$
+- **第 $k$ 层总代价**：$a^k \cdot c \cdot \left(\frac{n}{b^k}\right)^d = c \cdot n^d \cdot \left(\frac{a}{b^d}\right)^k$
+- **树的高度**：当 $n/b^k = 1$ 时，$k = \log_b n$
+- **叶子层代价**：$a^{\log_b n} = n^{\log_b a}$（利用 $a^{\log_b n} = n^{\log_b a}$ 的恒等式）
+
+**总代价求和**：
+
+$$
+T(n) = c \cdot n^d \sum_{k=0}^{\log_b n} \left(\frac{a}{b^d}\right)^k
+$$
+
+令 $r = \frac{a}{b^d}$，这是一个等比级数。根据 $r$ 与 1 的关系分三种情况：
+
+**Case 1**：$d > \log_b a$，即 $b^d > a$，故 $r < 1$。等比级数收敛到常数：
+
+$$
+\sum_{k=0}^{\log_b n} r^k = \frac{1 - r^{\log_b n + 1}}{1 - r} = O(1)
+$$
+
+因此 $T(n) = O(n^d)$。第 0 层（根节点）的合并代价主导。
+
+**Case 2**：$d = \log_b a$，即 $r = 1$。每层代价相同：
+
+$$
+\sum_{k=0}^{\log_b n} 1^k = \log_b n + 1 = O(\log n)
+$$
+
+因此 $T(n) = O(n^d \log n)$。每层贡献均等，共 $O(\log n)$ 层。
+
+**Case 3**：$d < \log_b a$，即 $r > 1$。等比级数由最后一项主导：
+
+$$
+\sum_{k=0}^{\log_b n} r^k = \frac{r^{\log_b n + 1} - 1}{r - 1} = O(r^{\log_b n}) = O\!\left(\frac{a^{\log_b n}}{b^{d \cdot \log_b n}}\right) = O\!\left(\frac{n^{\log_b a}}{n^d}\right)
+$$
+
+因此 $T(n) = O(n^d) \cdot O\!\left(\frac{n^{\log_b a}}{n^d}\right) = O(n^{\log_b a})$。叶子层代价主导。$\blacksquare$
+
+### 0.5.3 应用示例
+
+#### 示例 1：归并排序
+
+$$
+T(n) = 2T(n/2) + O(n)
+$$
+
+参数：$a = 2$，$b = 2$，$d = 1$。
+
+比较：$\log_b a = \log_2 2 = 1 = d$ → **Case 2**
+
+$$
+T(n) = O(n \log n)
+$$
+
+#### 示例 2：二分搜索
+
+$$
+T(n) = T(n/2) + O(1)
+$$
+
+参数：$a = 1$，$b = 2$，$d = 0$。
+
+比较：$\log_b a = \log_2 1 = 0 = d$ → **Case 2**
+
+$$
+T(n) = O(\log n)
+$$
+
+#### 示例 3：Karatsuba 整数乘法
+
+$$
+T(n) = 3T(n/2) + O(n)
+$$
+
+参数：$a = 3$，$b = 2$，$d = 1$。
+
+比较：$\log_b a = \log_2 3 \approx 1.585 > 1 = d$ → **Case 3**
+
+$$
+T(n) = O(n^{\log_2 3}) \approx O(n^{1.585})
+$$
+
+#### 示例 4：朴素矩阵乘法（分治版）
+
+$$
+T(n) = 8T(n/2) + O(n^2)
+$$
+
+参数：$a = 8$，$b = 2$，$d = 2$。
+
+比较：$\log_b a = \log_2 8 = 3 > 2 = d$ → **Case 3**
+
+$$
+T(n) = O(n^3)
+$$
+
+#### 示例 5：Strassen 矩阵乘法
+
+$$
+T(n) = 7T(n/2) + O(n^2)
+$$
+
+参数：$a = 7$，$b = 2$，$d = 2$。
+
+比较：$\log_b a = \log_2 7 \approx 2.807 > 2 = d$ → **Case 3**
+
+$$
+T(n) = O(n^{\log_2 7}) \approx O(n^{2.807})
+$$
+
+#### 示例 6：某假设算法
+
+$$
+T(n) = 4T(n/2) + O(n^3)
+$$
+
+参数：$a = 4$，$b = 2$，$d = 3$。
+
+比较：$\log_b a = \log_2 4 = 2 < 3 = d$ → **Case 1**
+
+$$
+T(n) = O(n^3)
+$$
+
+合并代价 $n^3$ 远超子问题增长速度，根节点层主导。
+
+### 0.5.4 速查表
+
+| 递推关系 | $a$ | $b$ | $d$ | $\log_b a$ | Case | 结果 |
+|---------|-----|-----|-----|------------|------|------|
+| $T = 2T(n/2) + O(n)$ | 2 | 2 | 1 | 1 | 2 | $O(n\log n)$ |
+| $T = T(n/2) + O(1)$ | 1 | 2 | 0 | 0 | 2 | $O(\log n)$ |
+| $T = 3T(n/2) + O(n)$ | 3 | 2 | 1 | 1.585 | 3 | $O(n^{1.585})$ |
+| $T = 8T(n/2) + O(n^2)$ | 8 | 2 | 2 | 3 | 3 | $O(n^3)$ |
+| $T = 7T(n/2) + O(n^2)$ | 7 | 2 | 2 | 2.807 | 3 | $O(n^{2.807})$ |
+| $T = 4T(n/2) + O(n^3)$ | 4 | 2 | 3 | 2 | 1 | $O(n^3)$ |
+| $T = 2T(n/2) + O(1)$ | 2 | 2 | 0 | 1 | 3 | $O(n)$ |
+| $T = 4T(n/2) + O(n^2)$ | 4 | 2 | 2 | 2 | 2 | $O(n^2\log n)$ |
