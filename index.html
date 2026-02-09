@@ -7,6 +7,7 @@
   <meta name="description" content="基于 Duke CS 330 课程的算法设计与分析中文教程">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
   <style>
     :root {
       --theme-color: #3F51B5;
@@ -37,11 +38,7 @@
         depth: 3
       },
       auto2top: true,
-      coverpage: false,
-      latex: {
-        inlineMath   : [['$', '$']],
-        displayMath  : [['$$', '$$']]
-      }
+      coverpage: false
     }
   </script>
   <!-- Docsify -->
@@ -55,7 +52,8 @@
   <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-cpp.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-pseudocode.min.js"></script>
   <!-- KaTeX 数学公式 -->
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css" />
+  <script src="//cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/marked@4"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-katex@latest/dist/docsify-katex.js"></script>
   <!-- 复制代码 -->
   <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
