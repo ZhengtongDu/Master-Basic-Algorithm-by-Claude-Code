@@ -90,13 +90,14 @@ github仓库：git@github.com:ZhengtongDu/Master-Basic-Algorithm-by-Claude-Code.
 - [x] 2026-02-09: 编写 Chapter 00 第 0.6 节：渐近符号（定义、性质、运算规则、8 道测试题）
 - [x] 2026-02-09: 为 Chapter 02 添加 2.0 预备知识节（DAG、计算 DAG、fork-join 模型、记号汇总）
 - [x] 2026-02-09: 扩充 Chapter 03：添加 DP 通用解题框架（3.2 节）+ 扩展背包问题（暴力复杂度、伪代码、对比图、空间优化）
+- [x] 2026-02-11: 润色 Chapter 01：修正标题层级、添加 4 张 Mermaid 图表、补充对比表和伪代码、添加章节总结
 
 ## Current Task
 
-（无）
+编写第四章：图算法
 
 ## Todolist
-- [ ] 编写第一章：基础与分治
+- [x] 编写第一章：基础与分治
 - [ ] 编写第四章：图算法
 - [ ] 编写第五章：贪心算法
 - [ ] 编写第六章：网络流
