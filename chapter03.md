@@ -300,9 +300,86 @@ graph LR
 
 上例中回溯路径为：$(4,5) \to (4,4) \to (3,3) \xrightarrow{\text{匹配 T}} (2,2) \xrightarrow{\text{匹配 A}} (1,1) \to (1,0)$... 最终 LCS = "ATG"（长度 3）。
 
-**复杂度**：时间 $O(nm)$，空间 $O(nm)$（可优化为 $O(\min(n,m))$，但会丢失回溯能力）。
+**Python 实现**：
+
+```python
+def lcs(X, Y):
+    n, m = len(X), len(Y)
+    # L[i][j] = LCS 长度，X[0..i-1] 与 Y[0..j-1]
+    L = [[0] * (m + 1) for _ in range(n + 1)]
+
+    for i in range(1, n + 1):
+        for j in range(1, m + 1):
+            if X[i - 1] == Y[j - 1]:          # 匹配
+                L[i][j] = 1 + L[i - 1][j - 1]
+            else:                               # 不匹配，取较大值
+                L[i][j] = max(L[i - 1][j], L[i][j - 1])
+
+    return L[n][m]
+```
+
+**复杂度分析**：
+
+- **时间**：$O(nm)$。双重循环分别遍历 $n$ 行和 $m$ 列，每个单元格内的比较和取 max 操作均为 $O(1)$。
+- **空间**：$O(nm)$。需要一个 $(n+1) \times (m+1)$ 的二维表格。若只需长度不需回溯，可优化为 $O(\min(n,m))$（只保留两行）。
 
 <!-- CHUNK4_PLACEHOLDER -->
+
+### 3.3.3 编辑距离（Edit Distance）
+
+**问题定义**：给定两个字符串 $X[1 \dots n]$ 和 $Y[1 \dots m]$，求将 $X$ 变换为 $Y$ 所需的最少编辑操作次数。允许的操作有三种：
+
+1. **插入**（Insert）：在 $X$ 中插入一个字符
+2. **删除**（Delete）：从 $X$ 中删除一个字符
+3. **替换**（Substitute）：将 $X$ 中的一个字符替换为另一个字符
+
+**状态定义**：$E[i, j]$ = 将 $X[1 \dots i]$ 变换为 $Y[1 \dots j]$ 的最小编辑距离。
+
+**递推关系**：
+
+$$
+E[i, j] = \begin{cases}
+i & \text{if } j = 0 \text{（删除 } i \text{ 个字符）} \\
+j & \text{if } i = 0 \text{（插入 } j \text{ 个字符）} \\
+\min\!\begin{cases}
+E[i\!-\!1, j] + 1 & \text{（删除 } X[i] \text{）} \\
+E[i, j\!-\!1] + 1 & \text{（插入 } Y[j] \text{）} \\
+E[i\!-\!1, j\!-\!1] + \mathbb{1}(X[i] \neq Y[j]) & \text{（替换/匹配）}
+\end{cases} & \text{otherwise}
+\end{cases}
+$$
+
+其中 $\mathbb{1}(X[i] \neq Y[j])$ 表示：若 $X[i] = Y[j]$ 则代价为 0（无需操作），否则代价为 1（替换）。
+
+**Python 实现**：
+
+```python
+def edit_distance(X, Y):
+    n, m = len(X), len(Y)
+    E = [[0] * (m + 1) for _ in range(n + 1)]
+
+    # Base Cases
+    for i in range(n + 1):
+        E[i][0] = i    # 删除 i 个字符
+    for j in range(m + 1):
+        E[0][j] = j    # 插入 j 个字符
+
+    for i in range(1, n + 1):
+        for j in range(1, m + 1):
+            cost = 0 if X[i - 1] == Y[j - 1] else 1
+            E[i][j] = min(
+                E[i - 1][j] + 1,        # 删除
+                E[i][j - 1] + 1,        # 插入
+                E[i - 1][j - 1] + cost  # 替换/匹配
+            )
+
+    return E[n][m]
+```
+
+**复杂度分析**：
+
+- **时间**：$O(nm)$。双重循环遍历整个 $(n+1) \times (m+1)$ 表格，每个单元格内的三路取 min 操作为 $O(1)$。
+- **空间**：$O(nm)$。需要存储完整的二维表格。若只需最终距离值，可优化为 $O(\min(n,m))$（只保留两行）。
 
 ---
 
@@ -664,6 +741,35 @@ graph TD
 
 **复杂度**：时间 $O(n)$，空间 $O(n)$（每个节点访问一次）。
 
+**Python 实现**（后序遍历递归）：
+
+```python
+def solve_mis(u, children):
+    """
+    u: 当前节点
+    children: 邻接表，children[u] = u 的子节点列表
+    返回 (mis_exclude, mis_include)
+    """
+    sum_exclude = 0  # 不选 u 时的最大独立集大小
+    sum_include = 0  # 选 u 时的最大独立集大小
+
+    for v in children[u]:
+        v_excl, v_incl = solve_mis(v, children)  # 后序遍历
+        sum_exclude += max(v_incl, v_excl)  # 不选 u → 子节点可选可不选
+        sum_include += v_excl               # 选 u → 子节点必须不选
+
+    return sum_exclude, 1 + sum_include
+
+# 调用方式
+excl, incl = solve_mis(root, children)
+answer = max(excl, incl)
+```
+
+**复杂度详细推导**：
+
+- **时间**：$O(n)$。`solve_mis` 对每个节点恰好调用一次。每次调用中遍历子节点的总工作量等于边数 $n - 1$，因此总时间为 $O(n)$。
+- **空间**：$O(n)$。递归栈深度最坏为 $O(n)$（退化为链时），加上每个节点存储两个 DP 值。
+
 <!-- CHUNK8_PLACEHOLDER -->
 
 ---
@@ -700,7 +806,30 @@ graph LR
     style C fill:#fff9c4
 ```
 
-- **时间**：$O(n^2)$（填满 $n \times n$ 表格）
+**Python 实现**：
+
+```python
+def fab(n):
+    F = [[0] * (n + 1) for _ in range(n + 1)]
+
+    # Base Cases（根据具体递推规则初始化第 1 行和第 1 列）
+    F[1][1] = F[1][2] = F[2][1] = 1
+    for j in range(3, n + 1):
+        F[1][j] = F[1][j - 1] + F[1][j - 2]  # 第 1 行：类 Fibonacci
+    for i in range(3, n + 1):
+        F[i][1] = F[i - 1][1] + F[i - 2][1]  # 第 1 列
+
+    # 逐行填表
+    for i in range(2, n + 1):
+        for j in range(2, n + 1):
+            F[i][j] = F[i - 1][j] + F[i][j - 1]
+
+    return F[n][n]
+```
+
+**复杂度分析**：
+
+- **时间**：$O(n^2)$（填满 $n \times n$ 表格，每个单元格 $O(1)$）
 - **空间**：$O(n^2)$ → 可优化为 $O(n)$（只需保留上一行）
 
 ### 3.7.2 最长回文子串
@@ -723,6 +852,75 @@ $$
 
 **迭代顺序**：必须按**区间长度从小到大**遍历（与矩阵链乘法相同），因为 $D[i, j]$ 依赖于 $D[i+1, j-1]$（更短的区间）。不能简单地用 `for i, for j`。
 
-**复杂度**：时间 $O(n^2)$（填满上三角矩阵），空间 $O(n^2)$。
+**Python 实现**：
+
+```python
+def longest_palindrome(S):
+    n = len(S)
+    D = [[False] * n for _ in range(n)]
+    max_len = 1
+
+    # Base Case：长度 1
+    for i in range(n):
+        D[i][i] = True
+
+    # Base Case：长度 2
+    for i in range(n - 1):
+        if S[i] == S[i + 1]:
+            D[i][i + 1] = True
+            max_len = 2
+
+    # 按区间长度 g 从 3 到 n 遍历
+    for g in range(3, n + 1):
+        for i in range(n - g + 1):
+            j = i + g - 1
+            if S[i] == S[j] and D[i + 1][j - 1]:
+                D[i][j] = True
+                max_len = g
+
+    return max_len
+```
+
+**复杂度分析**：
+
+- **时间**：$O(n^2)$。两层循环遍历所有 $O(n^2)$ 个子串区间，每个区间的判断为 $O(1)$。
+- **空间**：$O(n^2)$。需要存储 $n \times n$ 的布尔 DP 表格（实际只用上三角部分）。
+
+### 3.7.3 零钱兑换（Coin Change）
+
+**问题定义**：给定 $n$ 种硬币，面值分别为 $coins[1], coins[2], \dots, coins[n]$（每种硬币数量无限），判断能否恰好凑成面值 $v$。
+
+**状态定义**：$DP[j] = \text{True}$ 表示面值 $j$ 可以被凑出。
+
+**递推关系**：
+
+$$
+DP[j] = \bigvee_{i=1}^{n} \big(j \ge coins[i] \;\land\; DP[j - coins[i]]\big)
+$$
+
+**Base Case**：$DP[0] = \text{True}$（面值 0 不需要任何硬币）。
+
+**Python 实现**：
+
+```python
+def can_change(coins, v):
+    DP = [False] * (v + 1)
+    DP[0] = True  # Base Case：面值 0 总是可以凑出
+
+    for j in range(1, v + 1):
+        for c in coins:
+            if j >= c and DP[j - c]:
+                DP[j] = True
+                break  # 已找到一种方案，跳到下一个面值
+
+    return DP[v]
+```
+
+> **注**：Recitation 讲义中给出的是二维 $DP(i, j)$ 形式（前 $i$ 种硬币凑面值 $j$），但对于无限背包问题，一维 DP 已经足够。二维形式的时间复杂度不变，空间会增大到 $O(nv)$。
+
+**复杂度分析**：
+
+- **时间**：$O(nv)$。外层循环遍历 $v$ 个面值，内层循环最多检查 $n$ 种硬币。
+- **空间**：$O(v)$。只需一维数组存储 $v + 1$ 个布尔值。
 
 ---

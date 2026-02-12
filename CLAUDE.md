@@ -91,6 +91,7 @@ github仓库：git@github.com:ZhengtongDu/Master-Basic-Algorithm-by-Claude-Code.
 - [x] 2026-02-09: 为 Chapter 02 添加 2.0 预备知识节（DAG、计算 DAG、fork-join 模型、记号汇总）
 - [x] 2026-02-09: 扩充 Chapter 03：添加 DP 通用解题框架（3.2 节）+ 扩展背包问题（暴力复杂度、伪代码、对比图、空间优化）
 - [x] 2026-02-11: 润色 Chapter 01：修正标题层级、添加 4 张 Mermaid 图表、补充对比表和伪代码、添加章节总结
+- [x] 2026-02-13: 润色 Chapter 03：整合补充伪代码为 Python 实现，新增编辑距离（3.3.3）和零钱兑换（3.7.3）小节，补充 LCS/Tree DP/Fab/回文子串的 Python 代码和详细复杂度分析
 
 ## Current Task
 
