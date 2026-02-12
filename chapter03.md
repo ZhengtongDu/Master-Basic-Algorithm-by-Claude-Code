@@ -230,9 +230,16 @@ $$
 
 ### 3.3.1 问题定义与最优子结构证明
 
-给定序列 $X = x_1 x_2 \dots x_n$ 和 $Y = y_1 y_2 \dots y_m$。
+**子序列 vs 子串**：
 
-定义 $L(i, j)$ 为前缀 $X_i = x_1 \dots x_i$ 和前缀 $Y_j = y_1 \dots y_j$ 的最长公共子序列长度。
+- **子串（Substring）**：必须是**连续**的字符片段。例如 "bcd" 是 "abcde" 的子串。
+- **子序列（Subsequence）**：可以**不连续**，但必须保持原有的相对顺序。例如 "ace" 是 "abcde" 的子序列（删除 b、d 得到），但 "aec" 不是（顺序错误）。
+
+**问题定义**：给定两个序列 $X = x_1 x_2 \dots x_n$ 和 $Y = y_1 y_2 \dots y_m$，找出它们的**最长公共子序列**（Longest Common Subsequence, LCS），即同时是 $X$ 和 $Y$ 的子序列且长度最大的序列。
+
+**示例**：$X = \text{"ABCBDAB"}$，$Y = \text{"BDCABA"}$，LCS 为 "BCBA" 或 "BDAB"（长度均为 4）。
+
+**状态定义**：$L(i, j)$ 为前缀 $X_i = x_1 \dots x_i$ 和前缀 $Y_j = y_1 \dots y_j$ 的最长公共子序列长度。
 
 **递推关系及其正确性证明**：
 
